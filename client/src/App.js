@@ -1,71 +1,50 @@
 import React, { useEffect, useState } from 'react';
-import prompt from 'prompt-sync';
+import { NewMemberForm } from './NewMemberForm';
 import 'index.css';
 
 export const App = () => {
-  const [books, setBooks] = useState([]);
+  const [members, setMembers] = useState([]);
 
-  // Get all the unread books from the API
-  const fetchUnreadBooks = () => {
-    console.log('Fetching unread books');
-    fetch('http://localhost:8080/books/unread')
+  // Get all the unread members from the API
+  const fetchMembers = () => {
+    fetch('http://localhost:8080/members')
       .then((res) => res.json())
-      .then((json) => setBooks(json));
+      .then((json) => setMembers(json));
   };
 
-  const readBook = async (isbn) => {
-    console.log(`Reading book : ${isbn}`);
-    await fetch(`http://localhost:8080/books/${isbn}/read`, { method: 'PUT' });
-    console.log('Finished reading book');
-    fetchUnreadBooks();
-  };
-
-  const reviewBook = async (review, book) => {
-    console.log(`Reviewing book : ${book.title}`);
-    await fetch(`http://localhost:8080/books/${book.isbn}/review`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ review, book: book._id, likes: 1000 }),
-      // body: JSON.stringify({ review, book }),
+  const deleteMember = async () => {
+    await fetch(`http://localhost:8080/members`, {
+      method: 'DELETE',
     });
-    console.log('Finished reviewing book');
-    fetchUnreadBooks();
+    fetchMembers();
   };
 
   useEffect(() => {
-    fetchUnreadBooks();
+    fetchMembers();
   }, []);
 
   return (
     <div>
       <main>
+        <NewMemberForm fetchMembers={fetchMembers}></NewMemberForm>
+        <h2>Members:</h2>
         <div>
-          {books.map((book) => {
+          {members.map((member) => {
             return (
               <div>
                 <p>
-                  {book.title} : {book.text_reviews_count}
+                  {member.name} {member.surname}
                 </p>
+                <p>Letters in First Name: {member.lettersInName}</p>
+                <p>Is the Papa: {member.isPapa ? 'yes' : 'no'}</p>
                 <button
                   type="button"
-                  id={book.isbn}
+                  id={member._id}
                   onClick={(e) => {
-                    readBook(book.isbn);
+                    deleteMember(member._id);
                   }}
                 >
-                  Read
-                </button>
-                <button
-                  type="button"
-                  id={book.isbn}
-                  onClick={(e) => {
-                    const review = window.prompt(`Review: ${book.title}`);
-                    reviewBook(review, book);
-                  }}
-                >
-                  Review
+                  Delete
                 </button>
               </div>
             );
