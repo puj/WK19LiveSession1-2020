@@ -12,8 +12,8 @@ export const App = () => {
       .then((json) => setMembers(json));
   };
 
-  const deleteMember = async () => {
-    await fetch(`http://localhost:8080/members`, {
+  const deleteMember = async (id) => {
+    await fetch(`http://localhost:8080/members/${id}`, {
       method: 'DELETE',
     });
     fetchMembers();

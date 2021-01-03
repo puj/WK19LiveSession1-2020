@@ -77,7 +77,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/members', async (req, res) => {
-  const allMembers = await Member.find(req.query).skip(2).limit(2);
+  const allMembers = await Member.find(req.query);
   res.json(allMembers);
 });
 
