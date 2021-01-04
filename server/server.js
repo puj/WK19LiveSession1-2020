@@ -17,7 +17,10 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const Member = new mongoose.model('Member', {
-  name: String,
+  name: {
+    type: String,
+    required: true,
+  },
   surname: String,
   role: {
     type: mongoose.Schema.Types.ObjectId,
@@ -108,6 +111,35 @@ app.get('/members/:id/role', async (req, res) => {
     res.json(singleMemberRole);
   } else {
     res.json(404).json({ error: 'Not found' });
+  }
+});
+
+/////////////////////
+// Week 19 Endpoints
+/////////////////////
+
+app.delete('/members/:id', async (req, res) => {
+  try {
+    // Try to delete the user
+    await Member.deleteOne({ _id: req.params.id });
+
+    // Send a successful response
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.log(error);
+
+    // Inform the client about the deletion failure
+    res.status(400).json({ success: false });
+  }
+});
+
+app.post('/members', async (req, res) => {
+  try {
+    const newMember = await new Member(req.body).save();
+    res.status(200).json(newMember);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ success: false, error });
   }
 });
 
