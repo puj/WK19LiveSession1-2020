@@ -17,7 +17,10 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const Member = new mongoose.model('Member', {
-  name: String,
+  name: {
+    type: String,
+    required: true,
+  },
   surname: String,
   role: {
     type: mongoose.Schema.Types.ObjectId,
@@ -108,6 +111,38 @@ app.get('/members/:id/role', async (req, res) => {
     res.json(singleMemberRole);
   } else {
     res.json(404).json({ error: 'Not found' });
+  }
+});
+
+////////////////////
+// Week 19 Endpoints
+////////////////////
+
+app.delete('/members/:id', async (req, res) => {
+  // Remember:
+  //   _id : is something mongo uses
+  //   id  : is something we chose the name of
+  try {
+    const { id } = req.params;
+    await Member.deleteOne({ _id: id });
+    res.status(200).send();
+  } catch (error) {
+    console.log(error);
+    res.status(400).send();
+  }
+});
+
+app.post('/members', async (req, res) => {
+  try {
+    const newMember = await new Member(req.body).save();
+    res.status(200).json(newMember);
+  } catch (error) {
+    console.log(error);
+    // We don't have to return this error here to the client,
+    //  and oftentimes we don't want to.  It's too much information
+    //  for the client.  We could prefer to return a message that we would want to
+    //  show to the user.
+    res.status(404).json(error);
   }
 });
 
